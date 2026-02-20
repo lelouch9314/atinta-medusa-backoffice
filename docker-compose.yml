@@ -1,0 +1,42 @@
+services:
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: atinta_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - atinta_network
+
+  # Medusa Server
+  # This service runs the Medusa backend application
+  # and the admin dashboard.
+  medusa:
+    build: .
+    container_name: atinta_backend
+    restart: unless-stopped
+    depends_on:
+      - redis
+    ports:
+      - "9000:9000"
+      - "5173:5173"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - REDIS_URL=${REDIS_URL}
+      # Override DATABASE_URL to use host.docker.internal for Local Supabase
+      - DATABASE_URL=${DATABASE_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    volumes:
+      - .:/server
+      - /server/node_modules
+    networks:
+      - atinta_network
+
+networks:
+  atinta_network:
+    driver: bridge
