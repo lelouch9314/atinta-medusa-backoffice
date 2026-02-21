@@ -81,6 +81,9 @@ module.exports = defineConfig({
       resolve: "./src/modules/reviews",
     },
     {
+      resolve: "@medusajs/medusa/translation",
+    },
+    {
       resolve: "@medusajs/medusa/auth",
       options: {
         providers: [
@@ -95,4 +98,7 @@ module.exports = defineConfig({
       },
     },
   ],
+  featureFlags: {
+    translation: true,
+  },
 });
