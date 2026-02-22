@@ -67,8 +67,8 @@ export const POST = async (
 
   const { result } = await createReviewWorkflow(req.scope).run({
     input: {
-      product_id: id,
       ...input,
+      product_id: id,
       customer_id: req.auth_context?.actor_id,
     },
   });

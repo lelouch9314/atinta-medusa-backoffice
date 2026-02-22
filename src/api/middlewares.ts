@@ -23,7 +23,7 @@ export default defineMiddlewares({
       method: ["POST"],
       matcher: "/store/products/:id/reviews",
       middlewares: [
-        authenticate("customer", ["session", "bearer"]),
+        // authenticate("customer", ["session", "bearer"]),
         validateAndTransformBody(PostStoreReviewSchema),
       ],
     },
