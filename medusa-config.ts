@@ -81,6 +81,9 @@ module.exports = defineConfig({
       resolve: "./src/modules/reviews",
     },
     {
+      resolve: "./src/modules/professional-design",
+    },
+    {
       resolve: "@medusajs/medusa/translation",
     },
     {

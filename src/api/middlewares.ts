@@ -7,6 +7,8 @@ import { defineMiddlewares } from "@medusajs/medusa";
 import { GetAdminReviewsSchema } from "./admin/reviews/route";
 import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route";
 import { PostStoreReviewSchema } from "./store/products/[id]/reviews/route";
+import { PostStoreProfessionalDesignRequestSchema } from "./store/professional-design-requests/validators";
+import { GetAdminProDesignsRequestSchema } from "./admin/pro-designs-request/route";
 
 export default defineMiddlewares({
   routes: [
@@ -27,7 +29,6 @@ export default defineMiddlewares({
         validateAndTransformBody(PostStoreReviewSchema),
       ],
     },
-
     {
       matcher: "/admin/reviews",
       method: ["GET"],
@@ -45,6 +46,39 @@ export default defineMiddlewares({
             "created_at",
             "updated_at",
             "product.*",
+            "customer.*",
+          ],
+        }),
+      ],
+    },
+    {
+      matcher: "/store/professional-design-requests",
+      method: ["POST"],
+      middlewares: [
+        authenticate("customer", ["session", "bearer"]),
+        validateAndTransformBody(PostStoreProfessionalDesignRequestSchema),
+      ],
+    },
+    {
+      matcher: "/admin/pro-designs-request",
+      method: ["GET"],
+      middlewares: [
+        validateAndTransformQuery(GetAdminProDesignsRequestSchema, {
+          isList: true,
+          defaults: [
+            "id",
+            "company_name",
+            "industry",
+            "description",
+            "accent_colors",
+            "style",
+            "contact_name",
+            "contact_email",
+            "contact_phone",
+            "customer_id",
+            "status",
+            "created_at",
+            "updated_at",
             "customer.*",
           ],
         }),
