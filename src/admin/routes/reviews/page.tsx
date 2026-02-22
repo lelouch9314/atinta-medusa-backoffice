@@ -77,6 +77,16 @@ const columns = [
       );
     },
   }),
+  columnHelper.accessor("customer", {
+    header: "Customer",
+    cell: ({ row }) => {
+      return (
+        <Link to={`/customers/${row.original.customer_id}`}>
+          {row.original.customer?.first_name} {row.original.customer?.last_name}
+        </Link>
+      );
+    },
+  }),
 ];
 
 const commandHelper = createDataTableCommandHelper();

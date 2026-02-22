@@ -5,6 +5,23 @@ import {
 } from "@medusajs/framework/http";
 import { REVIEWS_MODULE } from "../../../../../modules/reviews";
 import ReviewService from "../../../../../modules/reviews/service";
+import { z } from "@medusajs/framework/zod";
+import { createReviewWorkflow } from "../../../../../workflows/review/create-review-workflow";
+
+export const PostStoreReviewSchema = z.object({
+  title: z.string().optional(),
+  content: z.string(),
+  rating: z.preprocess((val) => {
+    if (val && typeof val === "string") {
+      return parseInt(val);
+    }
+    return val;
+  }, z.number().min(1).max(5)),
+  first_name: z.string(),
+  last_name: z.string(),
+});
+
+type PostStoreReviewReq = z.infer<typeof PostStoreReviewSchema>;
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params;
@@ -42,48 +59,19 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 };
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<PostStoreReviewReq>,
   res: MedusaResponse,
 ) => {
   const { id } = req.params;
-  const { title, content, rating, first_name, last_name } = req.body as {
-    title?: string;
-    content: string;
-    rating: number;
-    first_name: string;
-    last_name: string;
-  };
+  const input = req.validatedBody;
 
-  if (!content || !rating || !first_name || !last_name) {
-    res.status(400).json({
-      message:
-        "Missing required fields: content, rating, first_name, last_name",
-    });
-    return;
-  }
-
-  if (rating < 1 || rating > 5) {
-    res.status(400).json({
-      message: "Rating must be between 1 and 5",
-    });
-    return;
-  }
-
-  const reviewService: ReviewService = req.scope.resolve(REVIEWS_MODULE);
-
-  const customer_id = req.auth_context?.actor_id ?? null;
-
-  const reviews = await reviewService.createReviews({
-    product_id: id,
-    title: title ?? null,
-    content,
-    rating,
-    first_name,
-    last_name,
-    status: "pending",
-    customer_id,
+  const { result } = await createReviewWorkflow(req.scope).run({
+    input: {
+      product_id: id,
+      ...input,
+      customer_id: req.auth_context?.actor_id,
+    },
   });
-  const review = Array.isArray(reviews) ? reviews[0] : reviews;
 
-  res.status(201).json({ review });
+  res.json(result);
 };
