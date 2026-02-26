@@ -8,7 +8,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve("query");
 
   const {
-    data: reviews,
+    data: requests,
     metadata: { count, take, skip } = {
       count: 0,
       take: 20,
@@ -20,7 +20,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   });
 
   res.json({
-    reviews,
+    requests,
     count,
     limit: take,
     offset: skip,

@@ -6,13 +6,14 @@ import {
   DataTablePaginationState,
   Heading,
   Toaster,
+  Tooltip,
   useDataTable,
 } from "@medusajs/ui";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { sdk } from "../../lib/sdk";
-import { ArrowPath, ImageSparkle } from "@medusajs/icons";
+import { ArrowPath, CheckCircle, Clock, ImageSparkle } from "@medusajs/icons";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 
 type ProfessionalDesignRequest = {
@@ -43,6 +44,16 @@ const columns = [
   //   columnHelper.select(),
   columnHelper.accessor("id", {
     header: "ID",
+    maxSize: 150,
+    cell: ({ row }) => {
+      return (
+        <Tooltip content={row.original.id}>
+          <Link to={`/pro-designs-request/${row.original.id}`}>
+            {row.original.id}
+          </Link>
+        </Tooltip>
+      );
+    },
   }),
   columnHelper.accessor("company_name", {
     header: "Company Name",
@@ -78,6 +89,20 @@ const columns = [
       );
     },
   }),
+  columnHelper.accessor("status", {
+    header: "Status",
+    cell: ({ row }) => {
+      switch (row.original.status) {
+        case "pending":
+          return (
+            <div className="flex items-center gap-2 capitalize">
+              <Clock className="dark:text-yellow-500 text-yellow-600" />
+              {row.original.status}
+            </div>
+          );
+      }
+    },
+  }),
 ];
 
 const limit = 15;
@@ -93,12 +118,12 @@ export default function ProfessionalDesignRequestsPage() {
   }, [pagination]);
 
   const { data, isLoading, refetch } = useQuery<{
-    reviews: ProfessionalDesignRequest[];
+    requests: ProfessionalDesignRequest[];
     count: number;
     limit: number;
     offset: number;
   }>({
-    queryKey: ["reviews", offset, limit],
+    queryKey: ["requests", offset, limit],
     queryFn: () =>
       sdk.client.fetch("/admin/pro-designs-request", {
         query: {
@@ -111,7 +136,7 @@ export default function ProfessionalDesignRequestsPage() {
 
   const table = useDataTable({
     columns,
-    data: data?.reviews || [],
+    data: data?.requests || [],
     rowCount: data?.count || 0,
     isLoading,
     pagination: {
