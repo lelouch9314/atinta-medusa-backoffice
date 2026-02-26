@@ -14,6 +14,10 @@ interface UploadStepInput {
 export const uploadDesignStep = createStep(
   "upload-design-step",
   async (input: UploadStepInput, { container }) => {
+    if (!input.files || input.files.length === 0) {
+      return new StepResponse([], []);
+    }
+
     const fileService: IFileModuleService = container.resolve(Modules.FILE);
 
     // Use the single s3 provider with 'designs/' prefix

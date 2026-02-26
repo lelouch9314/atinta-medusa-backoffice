@@ -150,14 +150,23 @@
           "nullable": true,
           "mappedType": "text"
         },
-        "image_url": {
-          "name": "image_url",
-          "type": "text",
+        "promotional_images": {
+          "name": "promotional_images",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "design_images": {
+          "name": "design_images",
+          "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "text"
+          "mappedType": "json"
         },
         "status": {
           "name": "status",
@@ -166,7 +175,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'DRAFT'",
+          "default": "'PENDING_REVIEW'",
           "enumItems": [
             "DRAFT",
             "PENDING_REVIEW",
@@ -194,6 +203,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
         },
         "designer_id": {
           "name": "designer_id",

@@ -4,12 +4,14 @@ export const Design = model.define("design", {
   id: model.id().primaryKey(),
   title: model.text(),
   description: model.text().nullable(),
-  image_url: model.text(),
+  promotional_images: model.json().nullable(),
+  design_images: model.json(),
   status: model
     .enum(["DRAFT", "PENDING_REVIEW", "APPROVED", "REJECTED", "ARCHIVED"])
-    .default("DRAFT"),
+    .default("PENDING_REVIEW"),
   score: model.number().default(0),
   moderation_notes: model.text().nullable(),
+  metadata: model.json().nullable(),
   designer: model.belongsTo(() => Designer, { mappedBy: "designs" }),
 });
 

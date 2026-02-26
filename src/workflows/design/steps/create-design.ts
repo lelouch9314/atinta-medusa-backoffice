@@ -5,7 +5,9 @@ import DesignService from "../../../modules/design/service";
 interface CreateDesignInput {
   title: string;
   description?: string;
-  image_url: string;
+  promotional_images?: string[];
+  design_images: string[];
+  metadata?: Record<string, any>;
   designer_id: string;
 }
 
@@ -15,7 +17,7 @@ export const createDesignStep = createStep(
     const designModule: DesignService = container.resolve(DESIGN_MODULE);
 
     // Assume the 'create' method exists on the service (standard DML service)
-    const design = await designModule.createDesigns(input);
+    const design = await designModule.createDesigns(input as any);
 
     return new StepResponse(design, design.id);
   },

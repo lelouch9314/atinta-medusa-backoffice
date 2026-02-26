@@ -4,13 +4,22 @@ import { DESIGN_MODULE } from "../../../modules/design";
 import DesignService from "../../../modules/design/service";
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const { title, description, files, designer_id } = req.body as any;
+  const {
+    title,
+    description,
+    promotional_files,
+    design_files,
+    metadata,
+    designer_id,
+  } = req.body as any;
 
   const { result } = await submitDesignWorkflow(req.scope).run({
     input: {
       title,
       description,
-      files,
+      promotional_files,
+      design_files,
+      metadata,
       designer_id: designer_id || "anon", // Should be auth user ID
     },
   });
