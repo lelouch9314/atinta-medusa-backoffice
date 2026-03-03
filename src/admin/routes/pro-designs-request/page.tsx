@@ -1,13 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import {
-  ArrowPath,
-  ArrowUturnLeft,
-  CheckCircle,
-  Clock,
-  ImageSparkle,
-  ThumbUp,
-  XCircle,
-} from "@medusajs/icons";
+import { ArrowPath, ImageSparkle } from "@medusajs/icons";
 import {
   Button,
   Container,
@@ -16,15 +8,18 @@ import {
   DataTablePaginationState,
   DataTableRowSelectionState,
   Heading,
+  StatusBadge,
   toast,
   Toaster,
   Tooltip,
   useDataTable,
 } from "@medusajs/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { sdk } from "../../lib/sdk";
+import ActionButtons from "./components/action-buttons";
+import { mapStatusToColor } from "./utils";
 
 type ProfessionalDesignRequest = {
   id: string;
@@ -84,30 +79,6 @@ export default function ProfessionalDesignRequestsPage() {
       }),
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: ({
-      ids,
-      status,
-    }: {
-      ids: string[];
-      status: "completed" | "cancelled" | "processing";
-    }) =>
-      sdk.client.fetch("/admin/pro-designs-request/status", {
-        method: "POST",
-        body: {
-          ids: ids,
-          status,
-        },
-      }),
-    onError: () => {
-      toast.error("Failed to update request status");
-    },
-    onSuccess: () => {
-      toast.success("Request status updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["requests", offset, limit] });
-    },
-  });
-
   const columns = useMemo(
     () => [
       columnHelper.select(),
@@ -161,80 +132,30 @@ export default function ProfessionalDesignRequestsPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) => {
-          switch (row.original.status) {
-            case "pending":
-              return (
-                <div className="flex items-center gap-2 capitalize">
-                  <Clock className="dark:text-yellow-500 text-yellow-600" />
-                  {row.original.status}
-                </div>
-              );
-            case "processing":
-              return (
-                <div className="flex items-center gap-2 capitalize">
-                  <Clock className="dark:text-yellow-500 text-yellow-600" />
-                  {row.original.status}
-                </div>
-              );
-            case "completed":
-              return (
-                <div className="flex items-center gap-2 capitalize">
-                  <CheckCircle className="dark:text-green-500 text-green-600" />
-                  {row.original.status}
-                </div>
-              );
-            case "cancelled":
-              return (
-                <div className="flex items-center gap-2 capitalize">
-                  <XCircle className="dark:text-red-500 text-red-600" />
-                  {row.original.status}
-                </div>
-              );
-          }
-        },
+        cell: ({ row }) => (
+          <StatusBadge
+            color={mapStatusToColor(
+              row.original.status as
+                | "pending"
+                | "processing"
+                | "completed"
+                | "cancelled",
+            )}
+            className="capitalize"
+          >
+            {row.original.status}
+          </StatusBadge>
+        ),
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-2">
-              {row.original.status !== "completed" && (
-                <Button
-                  onClick={() =>
-                    mutate({ ids: [row.original.id], status: "processing" })
-                  }
-                  disabled={isPending}
-                >
-                  <ThumbUp />{" "}
-                  {row.original.status === "processing"
-                    ? "Complete"
-                    : "Approve"}
-                </Button>
-              )}
-              {row.original.status === "processing" && (
-                <Button
-                  onClick={() =>
-                    mutate({ ids: [row.original.id], status: "processing" })
-                  }
-                  disabled={isPending}
-                >
-                  <ArrowUturnLeft /> Cancel
-                </Button>
-              )}
-              {row.original.status !== "cancelled" && (
-                <Button
-                  onClick={() =>
-                    mutate({ ids: [row.original.id], status: "cancelled" })
-                  }
-                  disabled={isPending}
-                >
-                  <XCircle /> Reject
-                </Button>
-              )}
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <ActionButtons
+            id={row.original.id}
+            status={row.original.status}
+            queryKey={["requests", offset, limit]}
+          />
+        ),
       }),
     ],
     [data],
