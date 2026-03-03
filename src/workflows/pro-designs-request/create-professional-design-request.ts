@@ -2,7 +2,6 @@ import {
   createWorkflow,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { PROFESSIONAL_DESIGN_MODULE } from "../../modules/professional-design";
 import { createProfessionalDesignRequestStep } from "./steps/create-pro-design-request";
 
 export type CreateProfessionalDesignRequestInput = {
@@ -20,8 +19,6 @@ export type CreateProfessionalDesignRequestInput = {
 export const createProfessionalDesignRequestWorkflow = createWorkflow(
   "create-professional-design-request",
   (input: CreateProfessionalDesignRequestInput) => {
-    const service = PROFESSIONAL_DESIGN_MODULE;
-
     // @ts-ignore - Medusa v2 dynamic service resolution
     const request = createProfessionalDesignRequestStep(input);
 

@@ -9,6 +9,7 @@ import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route
 import { PostStoreReviewSchema } from "./store/products/[id]/reviews/route";
 import { PostStoreProfessionalDesignRequestSchema } from "./store/professional-design-requests/validators";
 import { GetAdminProDesignsRequestSchema } from "./admin/pro-designs-request/route";
+import { PostAdminUpdateProDesignRequestStatusSchema } from "./admin/pro-designs-request/status/route";
 
 export default defineMiddlewares({
   routes: [
@@ -89,6 +90,13 @@ export default defineMiddlewares({
       method: ["POST"],
       middlewares: [
         validateAndTransformBody(PostAdminUpdateReviewsStatusSchema),
+      ],
+    },
+    {
+      matcher: "/admin/pro-designs-request/status",
+      method: ["POST"],
+      middlewares: [
+        validateAndTransformBody(PostAdminUpdateProDesignRequestStatusSchema),
       ],
     },
   ],
