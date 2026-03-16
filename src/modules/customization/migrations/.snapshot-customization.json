@@ -31,9 +31,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'DRAFT'",
+          "default": "'PENDING'",
           "enumItems": [
             "DRAFT",
+            "PENDING",
+            "APPROVED",
+            "REJECTED",
             "ORDERED",
             "IN_PRODUCTION",
             "COMPLETED",
@@ -50,6 +53,15 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
         "design_id": {
           "name": "design_id",
           "type": "text",
@@ -57,6 +69,24 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "mappedType": "text"
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
           "mappedType": "text"
         },
         "created_at": {

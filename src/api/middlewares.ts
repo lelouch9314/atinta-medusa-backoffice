@@ -4,12 +4,15 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework";
 import { defineMiddlewares } from "@medusajs/medusa";
+import multer from "multer";
 import { GetAdminReviewsSchema } from "./admin/reviews/route";
 import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route";
 import { PostStoreReviewSchema } from "./store/products/[id]/reviews/route";
 import { PostStoreProfessionalDesignRequestSchema } from "./store/professional-design-requests/validators";
 import { GetAdminProDesignsRequestSchema } from "./admin/pro-designs-request/route";
 import { PostAdminUpdateProDesignRequestStatusSchema } from "./admin/pro-designs-request/status/route";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 export default defineMiddlewares({
   routes: [
@@ -98,6 +101,25 @@ export default defineMiddlewares({
       middlewares: [
         validateAndTransformBody(PostAdminUpdateProDesignRequestStatusSchema),
       ],
+    },
+    {
+      matcher: "/store/uploads",
+      method: ["POST"],
+      middlewares: [
+        authenticate("customer", ["session", "bearer"]),
+        //@ts-ignore
+        upload.array("files"),
+      ],
+    },
+    {
+      matcher: "/store/customizations",
+      method: ["POST"],
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
+    {
+      matcher: "/admin/customizations*",
+      method: ["GET", "POST"],
+      middlewares: [],
     },
   ],
 });

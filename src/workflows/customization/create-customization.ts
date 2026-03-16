@@ -6,6 +6,9 @@ import { createCustomizationStep } from "./steps/create-customization-record";
 
 interface CreateCustomizationWorkflowInput {
   product_id: string;
+  variant_id: string;
+  customer_id: string;
+  image_url?: string;
   design_id?: string;
   customer_notes?: string;
   selected_properties: {

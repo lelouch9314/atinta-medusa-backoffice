@@ -10,6 +10,9 @@ interface PropertyInput {
 
 interface CreateCustomizationInput {
   product_id: string;
+  variant_id: string;
+  customer_id: string;
+  image_url?: string;
   design_id?: string;
   customer_notes?: string;
   selected_properties: PropertyInput[];
@@ -21,32 +24,25 @@ export const createCustomizationStep = createStep(
     const customizationModule: CustomizationService =
       container.resolve(CUSTOMIZATION_MODULE);
 
-    // Using DML generated method createCustomizations
+    // 1. Create the customization record
     const customization = await customizationModule.createCustomizations({
       product_id: input.product_id,
+      variant_id: input.variant_id,
+      customer_id: input.customer_id,
+      image_url: input.image_url,
       design_id: input.design_id,
       customer_notes: input.customer_notes,
-      // DML handles relations if structure matches, or we might need to separate property creation
-      // Assuming cascade create works for DML hasMany if passed correctly
-      // But types might need adjustment. For DML, passing array of objects for relation key usually works.
-      // Let's try passing selected_properties directly.
     });
 
-    // If DML create doesn't support deep insert generated, we might need a separate step or loop.
-    // Medusa DML usually supports it.
-
-    // Note: If selected_properties need to be created, we must ensure the module handles it.
-    // DML creates usually just create the root. Relations might need specific handling or the create method
-    // signature is generated to accept them.
-
-    // For safety, let's assume we need to handle properties separately or check DML docs.
-    // But for this MVP step, we'll try to persist only the customization and properties separately if needed.
-    // Let's stick to basic creation.
-
-    // Actually, let's do it properly by creating properties linked to the customization ID if strict.
-    // But let's assume DML 'create' accepts relation data for now.
-
-    // Wait, createCustomizations is generated.
+    // 2. Create properties if any
+    if (input.selected_properties?.length) {
+      await customizationModule.createSelectedProperties(
+        input.selected_properties.map((p) => ({
+          ...p,
+          customization_id: customization.id,
+        })),
+      );
+    }
 
     return new StepResponse(customization, customization.id);
   },
