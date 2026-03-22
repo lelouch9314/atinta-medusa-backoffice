@@ -59,6 +59,7 @@ export default function CustomizationsPage() {
           offset: pagination.pageIndex * pagination.pageSize,
           limit: pagination.pageSize,
           fields: "+customer.*, +product.*",
+          order: "-created_at",
         },
       }),
   });
