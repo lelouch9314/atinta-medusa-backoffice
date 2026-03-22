@@ -1,4 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { HttpTypes } from "@medusajs/framework/types";
 import { ArrowPath, Swatch } from "@medusajs/icons";
 import {
   Button,
@@ -15,16 +16,23 @@ import {
 } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { CustomizationType } from "../../../modules/customization";
 import { sdk } from "../../lib/sdk";
 import ActionButtons from "./components/action-buttons";
-import { Customization } from "./types";
 import { mapStatusToColor } from "./utils";
 
-const columnHelper = createDataTableColumnHelper<Customization>();
+const columnHelper = createDataTableColumnHelper<
+  CustomizationType & {
+    customer?: HttpTypes.AdminCustomer;
+    product?: HttpTypes.AdminProduct;
+  }
+>();
 
 const limit = 15;
 
 export default function CustomizationsPage() {
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: limit,
     pageIndex: 0,
@@ -39,7 +47,7 @@ export default function CustomizationsPage() {
   }, [pagination]);
 
   const { data, isLoading, refetch } = useQuery<{
-    customizations: Customization[];
+    customizations: CustomizationType[];
     count: number;
     limit: number;
     offset: number;
@@ -50,6 +58,7 @@ export default function CustomizationsPage() {
         query: {
           offset: pagination.pageIndex * pagination.pageSize,
           limit: pagination.pageSize,
+          fields: "+customer.*, +product.*",
         },
       }),
   });
@@ -60,9 +69,11 @@ export default function CustomizationsPage() {
         header: "ID",
         cell: ({ row }) => (
           <Tooltip content={row.original.id}>
-            <span className="text-ui-fg-subtle font-mono text-xs">
-              {row.original.id.substring(0, 8)}...
-            </span>
+            <Link to={`/customizations/${row.original.id}`}>
+              <span className="text-ui-fg-subtle font-mono text-xs">
+                {row.original.id.substring(0, 8)}...
+              </span>
+            </Link>
           </Tooltip>
         ),
       }),
@@ -82,13 +93,26 @@ export default function CustomizationsPage() {
           </div>
         ),
       }),
-      columnHelper.accessor("customer_id", {
-        header: "Cliente",
-        cell: ({ row }) => row.original.customer_id,
+      columnHelper.accessor("customer", {
+        header: "Customer",
+        cell: ({ row }) => {
+          return (
+            <Link to={`/customers/${row.original.customer_id}`}>
+              {row.original.customer?.first_name}{" "}
+              {row.original.customer?.last_name}
+            </Link>
+          );
+        },
       }),
-      columnHelper.accessor("product_id", {
-        header: "Producto",
-        cell: ({ row }) => row.original.product_id,
+      columnHelper.accessor("product", {
+        header: "Product",
+        cell: ({ row }) => {
+          return (
+            <Link to={`/products/${row.original.product_id}`}>
+              {row.original.product?.title}
+            </Link>
+          );
+        },
       }),
       columnHelper.accessor("status", {
         header: "Estado",

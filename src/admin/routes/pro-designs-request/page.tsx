@@ -9,12 +9,11 @@ import {
   DataTableRowSelectionState,
   Heading,
   StatusBadge,
-  toast,
   Toaster,
   Tooltip,
   useDataTable,
 } from "@medusajs/ui";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { sdk } from "../../lib/sdk";
@@ -52,7 +51,6 @@ export default function ProfessionalDesignRequestsPage() {
     pageSize: limit,
     pageIndex: 0,
   });
-  const queryClient = useQueryClient();
 
   const [rowSelection, setRowSelection] = useState<DataTableRowSelectionState>(
     {},

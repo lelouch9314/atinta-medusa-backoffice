@@ -11,6 +11,7 @@ import { PostStoreReviewSchema } from "./store/products/[id]/reviews/route";
 import { PostStoreProfessionalDesignRequestSchema } from "./store/professional-design-requests/validators";
 import { GetAdminProDesignsRequestSchema } from "./admin/pro-designs-request/route";
 import { PostAdminUpdateProDesignRequestStatusSchema } from "./admin/pro-designs-request/status/route";
+import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -119,7 +120,20 @@ export default defineMiddlewares({
     {
       matcher: "/admin/customizations*",
       method: ["GET", "POST"],
-      middlewares: [],
+      middlewares: [
+        validateAndTransformQuery(createFindParams(), {
+          isList: true,
+          defaults: [
+            "id",
+            "status",
+            "image_url",
+            "customer_id",
+            "product_id",
+            "created_at",
+            "updated_at",
+          ],
+        }),
+      ],
     },
   ],
 });
