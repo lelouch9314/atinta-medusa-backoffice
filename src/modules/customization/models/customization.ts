@@ -3,6 +3,7 @@ import { model } from "@medusajs/framework/utils";
 export const Customization = model.define("customization", {
   id: model.id().primaryKey(),
   customer_notes: model.text().nullable(),
+  admin_notes: model.text().nullable(),
   status: model
     .enum([
       "DRAFT",

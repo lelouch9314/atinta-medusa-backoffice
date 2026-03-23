@@ -4,7 +4,8 @@ import CustomizationService from "../../../modules/customization/service";
 
 export type UpdateCustomizationStepInput = {
   id: string;
-  status: string;
+  status?: string;
+  admin_notes?: string | null;
 }[];
 
 export const updateCustomizationStep = createStep(
