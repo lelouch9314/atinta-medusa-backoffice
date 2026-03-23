@@ -13,29 +13,18 @@ export const GET = async (
   res: MedusaResponse,
 ) => {
   const { id } = req.params;
-  const customizationModule: CustomizationService =
-    req.scope.resolve(CUSTOMIZATION_MODULE);
+  const query = req.scope.resolve("query");
 
-  const customization = await customizationModule.retrieveCustomization(id, {
-    relations: ["selected_properties"],
+  const { data: customizations } = await query.graph({
+    entity: "customization",
+    filters: { id },
+    fields: ["*", "selected_properties.*", "customer.*", "product.*"],
   });
 
-  res.json({ customization });
+  res.json({ customization: customizations[0] });
 };
 
 export const PostAdminUpdateCustomizationSchema = z.object({
-  status: z
-    .enum([
-      "DRAFT",
-      "PENDING",
-      "APPROVED",
-      "REJECTED",
-      "ORDERED",
-      "IN_PRODUCTION",
-      "COMPLETED",
-      "CANCELLED",
-    ])
-    .optional(),
   admin_notes: z.string().nullable().optional(),
 });
 
@@ -46,35 +35,32 @@ export const POST = async (
   res: MedusaResponse,
 ) => {
   const { id } = req.params;
-  console.log("id", req.body);
-  const { status, admin_notes } = PostAdminUpdateCustomizationSchema.parse(
-    req.body,
-  );
+  const { admin_notes } = PostAdminUpdateCustomizationSchema.parse(req.body);
   const customizationModule: CustomizationService =
     req.scope.resolve(CUSTOMIZATION_MODULE);
 
   let customization = await customizationModule.retrieveCustomization(id);
-  const wasNotApproved = customization.status !== "APPROVED";
+  // const wasNotApproved = customization.status !== "APPROVED";
 
   const { result } = await updateCustomizationWorkflow(req.scope).run({
     input: [
       {
         id,
-        status,
+        // status,
         admin_notes: admin_notes !== undefined ? admin_notes : undefined,
       },
     ],
   });
 
-  if (status === "APPROVED" && wasNotApproved) {
-    await approveCustomizationWorkflow(req.scope).run({
-      input: {
-        id: customization.id,
-        variant_id: customization.variant_id,
-        customer_id: customization.customer_id,
-      },
-    });
-  }
+  // if (status === "APPROVED" && wasNotApproved) {
+  //   await approveCustomizationWorkflow(req.scope).run({
+  //     input: {
+  //       id: customization.id,
+  //       variant_id: customization.variant_id,
+  //       customer_id: customization.customer_id,
+  //     },
+  //   });
+  // }
 
   res.json({ customization: result[0] });
 };

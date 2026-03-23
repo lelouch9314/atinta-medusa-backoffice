@@ -13,6 +13,7 @@ import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import { sdk } from "../../../lib/sdk";
 import { CustomizationType } from "../../../../modules/customization";
+import { ProductDTO } from "@medusajs/framework/types";
 
 // Detail page for customizations
 export default function CustomizationsDetailsPage() {
@@ -23,6 +24,7 @@ export default function CustomizationsDetailsPage() {
     customization: CustomizationType & {
       selected_properties: any[];
       admin_notes: string;
+      product: ProductDTO;
     };
   }>({
     queryKey: ["customizations", id],
@@ -30,12 +32,12 @@ export default function CustomizationsDetailsPage() {
   });
 
   const customization = data?.customization;
-
-  const { data: productData } = useQuery({
-    queryKey: ["product", customization?.product_id],
-    queryFn: () => sdk.admin.product.retrieve(customization!.product_id),
-    enabled: !!customization?.product_id,
-  });
+  const productData = data?.customization.product;
+  // const { data: productData } = useQuery({
+  //   queryKey: ["product", customization?.product_id],
+  //   queryFn: () => sdk.admin.product.retrieve(customization!.product_id),
+  //   enabled: !!customization?.product_id,
+  // });
 
   const [status, setStatus] = useState<string>("");
   const [adminNotes, setAdminNotes] = useState<string>("");
@@ -48,7 +50,7 @@ export default function CustomizationsDetailsPage() {
   }, [customization]);
 
   const updateMutation = useMutation({
-    mutationFn: (payload: { status?: string; admin_notes?: string }) =>
+    mutationFn: (payload: { admin_notes?: string }) =>
       sdk.client.fetch(`/admin/customizations/${id}`, {
         method: "POST",
         body: payload,
@@ -62,20 +64,35 @@ export default function CustomizationsDetailsPage() {
     },
   });
 
+  const { mutate: updateStatus, isPending } = useMutation({
+    mutationFn: (newStatus: string) =>
+      sdk.client.fetch(`/admin/customizations/${id}/status`, {
+        method: "POST",
+        body: { status: newStatus },
+      }),
+    onSuccess: () => {
+      toast.success("Estado actualizado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["customizations"] });
+    },
+    onError: () => {
+      toast.error("Error al actualizar el estado");
+    },
+  });
+
   const handleSaveNotes = () => {
     updateMutation.mutate({ admin_notes: adminNotes });
   };
 
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
-    updateMutation.mutate({ status: newStatus });
+    updateStatus(newStatus);
   };
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  const variant = productData?.product?.variants?.find(
+  const variant = productData?.variants?.find(
     (v: any) => v.id === customization?.variant_id,
   );
 
@@ -114,9 +131,9 @@ export default function CustomizationsDetailsPage() {
       <div className="grid grid-cols-2 gap-4">
         <Container className="space-y-4">
           <Heading level="h2">Product Details</Heading>
-          {productData?.product ? (
+          {productData ? (
             <div className="space-y-2">
-              <Text weight="plus">{productData.product.title}</Text>
+              <Text weight="plus">{productData.title}</Text>
               {variant && <Text>Variant: {variant.title}</Text>}
             </div>
           ) : (

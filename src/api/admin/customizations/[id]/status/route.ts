@@ -2,13 +2,20 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http";
-import { updateCustomizationWorkflow } from "../../../../../workflows/customization/update-customization";
 import { z } from "zod";
-import { CUSTOMIZATION_MODULE } from "../../../../../modules/customization";
-import CustomizationService from "../../../../../modules/customization/service";
+import { updateCustomizationWorkflow } from "../../../../../workflows/customization/update-customization";
 
 const schema = z.object({
-  status: z.string(),
+  status: z.enum([
+    "DRAFT",
+    "PENDING",
+    "APPROVED",
+    "REJECTED",
+    "ORDERED",
+    "IN_PRODUCTION",
+    "COMPLETED",
+    "CANCELLED",
+  ]),
 });
 
 export const POST = async (

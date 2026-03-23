@@ -1,3 +1,4 @@
+import { CalculatedPriceSet } from "@medusajs/framework/types";
 import { Modules } from "@medusajs/framework/utils";
 import {
   createStep,
@@ -8,7 +9,9 @@ import {
 } from "@medusajs/framework/workflows-sdk";
 import {
   createOrderWorkflow,
+  CreateOrderWorkflowInput,
   createRemoteLinkStep,
+  getVariantPriceSetsStep,
 } from "@medusajs/medusa/core-flows";
 import { CUSTOMIZATION_MODULE } from "../../modules/customization";
 
@@ -30,18 +33,13 @@ export const getInputsStep = createStep(
       data.variantId,
     );
 
-    // Fallback to 0 if price calculation is complex in v2 without context.
-    // Admin can update the draft order price before sending to customer.
-
     const salesChannels = await salesChannelModuleService.listSalesChannels({});
     const region = await regionModuleService.listRegions({});
     const salesChannelId = salesChannels[0]?.id;
     const regionId = region[0]?.id;
 
-    let unitPrice = 10;
-
     return new StepResponse(
-      { salesChannelId, regionId, unitPrice, customer, variant },
+      { salesChannelId, regionId, customer, variant },
       {},
     );
   },
@@ -50,17 +48,25 @@ export const getInputsStep = createStep(
 export const approveCustomizationWorkflow = createWorkflow(
   { name: "approve-customization", retentionTime: 99999, store: true },
   (input: { id: string; variant_id: string; customer_id: string }) => {
-    const { customer, regionId, salesChannelId, unitPrice, variant } =
-      getInputsStep({
-        customizationId: input.id,
-        variantId: input.variant_id,
-        customerId: input.customer_id,
-      });
+    const { customer, regionId, salesChannelId, variant } = getInputsStep({
+      customizationId: input.id,
+      variantId: input.variant_id,
+      customerId: input.customer_id,
+    });
 
-    const draftOrdersInputs = transform(
-      { customer, regionId, salesChannelId, unitPrice, variant },
+    const variantPrice = getVariantPriceSetsStep({
+      variantIds: [input.variant_id],
+      context: { currency_code: "usd" },
+    });
+
+    const draftOrdersInputs: CreateOrderWorkflowInput = transform(
+      { customer, regionId, salesChannelId, variant, variantPrice },
       (data) => {
-        console.log("DEGUB", data);
+        console.log("DEBUG", data.variantPrice, data.variant.id);
+
+        const unit_price =
+          data.variantPrice[data.variant.id].calculated_amount ?? 0;
+
         return {
           currency_code: "usd",
           email: data.customer.email,
@@ -72,7 +78,7 @@ export const approveCustomizationWorkflow = createWorkflow(
               variant_id: data.variant.id,
               title: data.variant.title,
               quantity: 1,
-              unit_price: data.unitPrice,
+              unit_price,
               // thumbnail: variant.thumbnail ?? "",
             },
           ],
@@ -86,7 +92,7 @@ export const approveCustomizationWorkflow = createWorkflow(
     });
 
     const draftOrderId = transform({ draftOrder }, (data) => {
-      console.log("DEBUG", data.draftOrder);
+      // console.log("DEBUG", data.draftOrder);
       return data.draftOrder.id;
     });
 

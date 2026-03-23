@@ -4,7 +4,15 @@ import CustomizationService from "../../../modules/customization/service";
 
 export type UpdateCustomizationStepInput = {
   id: string;
-  status?: string;
+  status?:
+    | "DRAFT"
+    | "PENDING"
+    | "APPROVED"
+    | "REJECTED"
+    | "ORDERED"
+    | "IN_PRODUCTION"
+    | "COMPLETED"
+    | "CANCELLED";
   admin_notes?: string | null;
 }[];
 
@@ -14,9 +22,8 @@ export const updateCustomizationStep = createStep(
     const customizationModule: CustomizationService =
       container.resolve(CUSTOMIZATION_MODULE);
 
-    const customizations = await customizationModule.updateCustomizations(
-      input as any,
-    );
+    const customizations =
+      await customizationModule.updateCustomizations(input);
 
     return new StepResponse(customizations, input);
   },

@@ -6,12 +6,18 @@ import {
   updateCustomizationStep,
   UpdateCustomizationStepInput,
 } from "./steps/update-customization";
+import { emitEventStep } from "@medusajs/medusa/core-flows";
 
 export const updateCustomizationWorkflow = createWorkflow(
-  "update-customization-workflow",
+  { name: "update-customization-workflow", store: true, retentionTime: 99999 },
   (input: UpdateCustomizationStepInput) => {
     const customizations = updateCustomizationStep(input);
 
-    return new WorkflowResponse(customizations);
+    emitEventStep({
+      eventName: "customization.status.updated",
+      data: { id: customizations[0].id, status: customizations[0].status },
+    });
+
+    return new WorkflowResponse(customizations[0]);
   },
 );
