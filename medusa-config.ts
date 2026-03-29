@@ -84,6 +84,9 @@ module.exports = defineConfig({
       resolve: "./src/modules/professional-design",
     },
     {
+      resolve: "./src/modules/storefront-cms",
+    },
+    {
       resolve: "@medusajs/medusa/translation",
     },
     {

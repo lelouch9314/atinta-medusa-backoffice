@@ -135,5 +135,13 @@ export default defineMiddlewares({
         }),
       ],
     },
+    {
+      matcher: "/admin/cms/uploads",
+      method: ["POST"],
+      middlewares: [
+        //@ts-ignore
+        upload.array("files"),
+      ],
+    },
   ],
 });
