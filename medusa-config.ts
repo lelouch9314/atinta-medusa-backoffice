@@ -134,4 +134,10 @@ module.exports = defineConfig({
   featureFlags: {
     translation: true,
   },
+  plugins: [
+    {
+      resolve: "@agilo/medusa-analytics-plugin",
+      options: {},
+    },
+  ],
 });
