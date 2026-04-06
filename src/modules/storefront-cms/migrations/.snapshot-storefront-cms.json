@@ -78,8 +78,17 @@
           "nullable": true,
           "mappedType": "text"
         },
-        "bg_gradient": {
-          "name": "bg_gradient",
+        "bg_color_from": {
+          "name": "bg_color_from",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "bg_color_to": {
+          "name": "bg_color_to",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -232,8 +241,17 @@
           "nullable": true,
           "mappedType": "text"
         },
-        "bg_gradient": {
-          "name": "bg_gradient",
+        "bg_color_from": {
+          "name": "bg_color_from",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "bg_color_to": {
+          "name": "bg_color_to",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -252,6 +270,15 @@
         },
         "accent_color": {
           "name": "accent_color",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "button_color": {
+          "name": "button_color",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
