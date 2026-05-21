@@ -19,6 +19,9 @@ COPY . .
 # Build Medusa application (includes admin dashboard)
 RUN yarn build
 
+# Copy admin dashboard build to where medusa start expects it in production
+RUN mkdir -p public/admin && cp -r .medusa/server/public/admin/* public/admin/
+
 # Production environment
 ENV NODE_ENV=production
 
