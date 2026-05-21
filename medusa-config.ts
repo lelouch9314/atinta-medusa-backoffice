@@ -14,21 +14,29 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
     databaseDriverOptions:
-      process.env.NODE_ENV !== "development"
+      process.env.DB_SSL === "false"
         ? {
-            connection: {
-              ssl: { rejectUnauthorized: false },
-            },
-            client: "pg",
-            debug: false,
-          }
-        : {
             connection: {
               ssl: false,
             },
             client: "pg",
             debug: false,
-          },
+          }
+        : process.env.NODE_ENV !== "development"
+          ? {
+              connection: {
+                ssl: { rejectUnauthorized: false },
+              },
+              client: "pg",
+              debug: false,
+            }
+          : {
+              connection: {
+                ssl: false,
+              },
+              client: "pg",
+              debug: false,
+            },
   },
   admin: {
     vite: (config) => {
